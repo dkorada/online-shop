@@ -1,0 +1,111 @@
+// Data model for the online shop.
+// Money is stored as integer cents everywhere to avoid floating point rounding issues.
+
+generator client {
+  provider = "prisma-client-js"
+  // rhel-openssl-3.0.x is the runtime used by Netlify Functions (AWS Lambda, Node 20+).
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  slug     String    @unique
+  products Product[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  name        String
+  tagline     String
+  description String
+  priceCents  Int
+  imageUrl    String
+  /// Units available to sell. Checked when adding to cart and decremented when an order is paid.
+  stock       Int
+  featured    Boolean  @default(false)
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([categoryId])
+}
+
+/// One cart per browser session. The id is the random session id stored in an httpOnly cookie.
+model Cart {
+  id        String     @id
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+  createdAt DateTime @default(now())
+
+  @@unique([cartId, productId])
+}
+
+/// Orders are only created after the mock payment succeeds, so every stored order is paid.
+model Order {
+  id          Int    @id @default(autoincrement())
+  orderNumber String @unique
+  status      String @default("PAID")
+  /// Session that placed the order, so the confirmation page can be reloaded without an email lookup.
+  sessionId   String?
+
+  email    String
+  fullName String
+  phone    String
+
+  shipLine1      String
+  shipLine2      String
+  shipCity       String
+  shipRegion     String
+  shipPostalCode String
+  shipCountry    String
+
+  subtotalCents Int
+  taxCents      Int
+  shippingCents Int
+  totalCents    Int
+
+  /// Only the brand and last four digits are kept. Full card numbers are never stored.
+  paymentBrand  String
+  paymentLast4  String
+  paymentRef    String
+
+  items     OrderItem[]
+  createdAt DateTime    @default(now())
+
+  @@index([email])
+}
+
+/// Product name and price are copied onto the order line so history stays accurate if the catalog changes.
+model OrderItem {
+  id             Int      @id @default(autoincrement())
+  orderId        Int
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      Int?
+  product        Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName    String
+  imageUrl       String
+  unitPriceCents Int
+  quantity       Int
+  lineTotalCents Int
+}

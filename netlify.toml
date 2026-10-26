@@ -1,0 +1,36 @@
+# Netlify deployment: the React app is served as static files and the Express API runs as one function.
+# Required environment variables (Site settings → Environment variables):
+#   TURSO_DATABASE_URL, TURSO_AUTH_TOKEN, SESSION_SECRET
+[build]
+  command = "npm run build"
+  publish = "client/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["@prisma/client", ".prisma", "@prisma/adapter-libsql", "@libsql/client"]
+  # Ship only the Prisma engine Lambda needs and drop large files the API never loads (keeps the bundle ~22 MB).
+  included_files = [
+    "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node",
+    "node_modules/.prisma/client/schema.prisma",
+    "!node_modules/.prisma/client/libquery_engine-debian-*",
+    "!node_modules/.prisma/client/*.wasm",
+    "!node_modules/.prisma/client/query_engine_bg.js",
+    "!node_modules/@prisma/client/runtime/*.wasm*",
+    "!node_modules/@prisma/client/runtime/*wasm-base64*",
+    "!node_modules/@libsql/linux-x64-musl/**",
+    "!node_modules/typescript/**",
+  ]
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

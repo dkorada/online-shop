@@ -1,0 +1,31 @@
+{
+  "name": "online-shop",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Full-stack demo storefront with a mock payment flow (React + Express + Prisma/SQLite).",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "setup": "npm install && node scripts/ensure-env.mjs && npm run db:setup",
+    "dev": "concurrently -n server,client -c blue,magenta \"npm:dev -w server\" \"npm:dev -w client\"",
+    "build": "npm run build -w client",
+    "start": "npm run start -w server",
+    "db:setup": "npm run db:setup -w server",
+    "test": "npm test -w server && npm test -w client",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "images": "tsx scripts/generate-product-images.ts",
+    "turso:setup": "npm run turso:setup -w server",
+    "preview": "npm run build && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.5",
+    "lucide-static": "^1.61.0",
+    "tsx": "^4.23.15"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

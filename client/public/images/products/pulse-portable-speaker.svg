@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Pulse Portable Speaker">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#FFF0E6"/>
+    </linearGradient>
+    <radialGradient id="disc" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFC9A3"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <circle cx="640" cy="150" r="90" fill="#FFC9A3" opacity="0.35"/>
+  <circle cx="140" cy="660" r="60" fill="#FFC9A3" opacity="0.25"/>
+  <ellipse cx="400" cy="640" rx="190" ry="22" fill="#8A3B12" opacity="0.08"/>
+  <circle cx="400" cy="380" r="230" fill="url(#disc)"/>
+  <g transform="translate(232 212) scale(14)" fill="none" stroke="#8A3B12" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M12 6h.01"/><circle cx="12" cy="14" r="4"/><path d="M12 14h.01"/></g>
+</svg>
